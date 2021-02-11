@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@handlebars/allow-prototype-access": "^1.0.3",
+    "auth0-lock": "^11.28.0",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -29,4 +30,5 @@
     "jest": "^26.6.3",
     "supertest": "^6.1.1"
   }
+
 }
