@@ -83,20 +83,20 @@ app.get("/users", async (req, res) => {
 app.get("/account", requiresAuth(), async (req, res) => {
   const users = await User.find({});
   let user = await User.findOne({ email: req.oidc.user.email });
-  const addFriendsUsers = users.filter((u) => {
-    if (
-      !user.friends.some((friend) => friend.email == u.email) &&
-      u.email != req.oidc.user.email
-    )
-      return true
-  });
 
   if (!user) {
     let user = await User.create({
       email: req.oidc.user.email,
       balance: 0,
       friends: [],
-      name: req.oidc.users.nickname,
+      name: req.oidc.user.nickname,
+    });
+    const addFriendsUsers = users.filter((u) => {
+      if (
+        !user.friends.some((friend) => friend.email == u.email) &&
+        u.email != req.oidc.user.email
+      )
+        return true
     });
     res.render("account", {
       loggedIn: req.oidc.isAuthenticated(),
@@ -110,6 +110,13 @@ app.get("/account", requiresAuth(), async (req, res) => {
       anyFriends: user.friends.length > 0
     });
   } else {
+    const addFriendsUsers = users.filter((u) => {
+      if (
+        !user.friends.some((friend) => friend.email == u.email) &&
+        u.email != req.oidc.user.email
+      )
+        return true
+    });
     res.render("account", {
       loggedIn: req.oidc.isAuthenticated(),
       name: user.name,
