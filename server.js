@@ -9,11 +9,16 @@ const expressHandlebars = require("express-handlebars");
 const {
   allowInsecurePrototypeAccess,
 } = require("@handlebars/allow-prototype-access");
+const Mailer = require('./mailer')
+
+if(process.env.NODE_ENV !== 'production') {
+  require('dotenv').config(".env")
+}
 
 // ----------------- MONGO DB CONNECT ---------------
 async function dbConnect() {
   const db = await mongoose.connect(
-    "mongodb+srv://dbMe:dbMePassword@apps.ywfb7.mongodb.net/bankapp?retryWrites=true&w=majority",
+    process.env.MONGO_URI,
     { useNewUrlParser: true, useUnifiedTopology: true }
   );
   console.log("Connected to DB");
@@ -25,10 +30,8 @@ dbConnect();
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-require("dotenv").config(".env"); // Note: env vars should not be used in production
 
 // set handlebars as view engine for the front end
-
 const handlebars = expressHandlebars({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
 });
@@ -53,7 +56,7 @@ const openIDConfig = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.CLIENT_SECRET,
-  baseURL: "http://localhost:3000",
+  baseURL: process.env.BASE_URL,
   clientID: process.env.CLIENT_ID, 
   issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`,
 };
@@ -143,7 +146,7 @@ app.post("/users/:id/friends", requiresAuth(), async (req, res) => {
 });
 
 //----------------- Transfer ------------------
-app.post("/users/:id/transfer", async (req, res) => {
+app.post("/users/:id/transfer", requiresAuth(), async (req, res) => {
   const user = await User.findById(req.params.id)
   const recipient = await User.findOne({email: req.body.recipient})
   
@@ -156,9 +159,11 @@ app.post("/users/:id/transfer", async (req, res) => {
   res.redirect("/account");
 });
 
-//----------------- Transfer ------------------
-app.post("/users/:id/invite", async (req, res) => {
-  // TO DO
+app.post("/friends/invite", requiresAuth(), async (req, res) => {
+  const email = req.body.email //to
+  const mailer = new Mailer(req.oidc.user.email) //from
+  mailer.sendMail(email)
+  res.redirect("/account");
 });
 
 
