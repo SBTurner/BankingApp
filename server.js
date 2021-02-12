@@ -75,33 +75,33 @@ app.get("/", async (req, res) => {
 // friends list  if (user.friends.some(friend => friend.email == u.email)) return true
 
 //------------------ Users -------------------
-app.get("/users", async (req, res) => {
+app.get("/users", requiresAuth(), async (req, res) => {
   const users = await User.find({});
   res.send(users);
 });
 
-//------------------ transactions -------------------
+//------------------ Transactions -------------------
 
-app.get("/transactions", async (req, res) => {
+app.get("/transactions", requiresAuth(), async (req, res) => {
   const transactions = await Transaction.find({});
   res.send(transactions);
 });
 
-app.get("/transactions/:id", async (req, res) => {
+app.get("/transactions/:id", requiresAuth(), async (req, res) => {
   const user = await User.findById(req.params.id)
   const transactions = await Transaction.find({});
   const filtered = transactions.filter(transaction => transaction.sender == user.email || transaction.recipient == user.email)
   res.send(filtered);
 });
 
-app.get("/transactions/sent/:id", async (req, res) => {
+app.get("/transactions/sent/:id", requiresAuth(), async (req, res) => {
   const user = await User.findById(req.params.id)
   const transactions = await Transaction.find({})
   const filtered = transactions.filter(transaction => transaction.sender == user.email)
   res.send(filtered);
 });
 
-app.get("/transactions/recieved/:id", async (req, res) => {
+app.get("/transactions/recieved/:id", requiresAuth(), async (req, res) => {
   const user = await User.findById(req.params.id)
   const transactions = await Transaction.find({})
   const filtered = transactions.filter(transaction => transaction.recipient == user.email)
