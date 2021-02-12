@@ -9,7 +9,6 @@ const expressHandlebars = require("express-handlebars");
 const {
   allowInsecurePrototypeAccess,
 } = require("@handlebars/allow-prototype-access");
-const e = require("express");
 
 // ----------------- MONGO DB CONNECT ---------------
 async function dbConnect() {
@@ -53,10 +52,10 @@ hbs.handlebars.registerHelper('ifGreaterThan', function(arg1, arg2, options) {
 const openIDConfig = {
   authRequired: false,
   auth0Logout: true,
-  secret: process.env.CLIENT_SECRET, // ceuhIoxgtrP0NIhTR_q5uMflYjjRK5KgC8u41m_dd2f8ncJuqKd93isAD5S60oOd
+  secret: process.env.CLIENT_SECRET,
   baseURL: "http://localhost:3000",
-  clientID: process.env.CLIENT_ID, // jtJUXVPmTJyeguonWQd0tPTgdzAdKSG8
-  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`, // dev-i7irgy9t
+  clientID: process.env.CLIENT_ID, 
+  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`,
 };
 
 // OpenID Connect will attach /login, /logout, and /callback routes to the baseURL
