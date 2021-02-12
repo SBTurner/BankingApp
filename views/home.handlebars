@@ -1,12 +1,12 @@
 <div class="text-center">
     {{#if loggedIn}}
     <h3 class="text-center">You are logged in ✅</h3>
-    <button class="btn btn-light"><a href="http://localhost:3000/account">Account
+    <button class="btn btn-light"><a href="/account">Account
         </a></button>
-    <button class="btn btn-light"><a href="http://localhost:3000/logout">Log Out</a></button>
+    <button class="btn btn-light"><a href="/logout">Log Out</a></button>
     {{else}}
     <h3 class="text-center">You are not logged in ❌</h3>
-    <button class="btn btn-light"><a href="http://localhost:3000/login">Log In</a></button>
+    <button class="btn btn-light"><a href="/login">Log In</a></button>
     <button class="btn btn-light" disabled>Account
         🔒 </button>
     {{/if}}
