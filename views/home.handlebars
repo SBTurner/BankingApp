@@ -1,9 +1,9 @@
 <div class="text-center">
     {{#if loggedIn}}
     <h3 class="text-center">You are logged in ✅</h3>
-    <button class="btn btn-light"><a href="/account">Account
-        </a></button>
-    <button class="btn btn-light"><a href="/logout">Log Out</a></button>
+    <a href="/account"><button class="btn btn-light">Account
+        </button></a>
+    <a href="/logout"><button class="btn btn-light">Log Out</button></a>
     {{else}}
     <h3 class="text-center">You are not logged in ❌</h3>
     <button class="btn btn-light"><a href="/login">Log In</a></button>

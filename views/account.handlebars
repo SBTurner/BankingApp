@@ -1,69 +1,130 @@
-<div class="flex-column text-center">
-<h2>Account 👤</h2> <br/>
+<div class="container text-center">
+    <h2>My Account</h2>
+    <div class="text-right">
+    <button class=" text-right m-2 btn btn-sm btn-dark"><a class="text-white"href="/logout">Logout</a></button>
+    </div>
     {{#if loggedIn}}
-        <h6>Username: {{name}}</h6>
-        <h6>Email: {{email}}</h6>
-        <h6>Balance: £{{balance}} </h6>
+        <div class="row">
 
-        <form action="/users/{{id}}/balance" method="post">
-            £ <input id="balance" name="balance" type="number" placeholder="amount" min="0" step=".01" />
-            <button class="btn btn-primary" type="submit">Update</button>
-        </form>
-        <br/>
-        <hr/>
+            {{!-- First column --}}
+            <div class="col-4 col-sm-4">
 
-        <h4>Transfer Money</h4>
-        <form action="/users/{{id}}/transfer" method="post">
-            {{!-- To <input id="recipient" name="recipient" type="text" placeholder="email address"/> --}}
-
-            <select name="recipient" size="1">
-                {{#each friends}}
-                <option value={{this.email}}>{{this.email}}</option>
-                {{/each}}
-            </select>
-
-            £ <input id="amount" name="amount" type="number" min="0" step=".01" max="{{balance}}" />
-            <button class="btn btn-primary" type="submit">Transfer</button>
-        </form>
-
-
-        <br/>
-        <hr/>
-
-
-            {{#if anyFriends}}
-                <h4>My Friends</h4>
-                {{#each friends}}
-                    <p>{{this.email}}</p>
-                {{/each}}
-                <br/>
-                <hr/>
-            {{/if}}
-
-        
-            {{#if anyUsers}}
-                <h4>Add Friends</h4>
-                {{#each users}}
-                    <form action="/users/{{../id}}/friends" method="post">
-                        {{this.email}} 
-                        <input type="hidden" value={{this.email}} name="friend_email">
-                        <input type="hidden" value={{this.id}} name="friend_id">
-                        <button class="btn btn-primary" type="submit">+</button>
+                {{!-- account --}}
+                <div class="p-4 m-2 card bg-light">
+                    <h4 class="text-primary card-title">Profile 👤</h4>
+                    <p>{{name}}<br/>{{email}}</p>
+                    <h3>£{{balance}}</h3>
+                    <form class="m-0" action="/users/{{id}}/balance" method="post">
+                        <div class="m-0 form-row justify-content-center">
+                            <div class="m-0 form-group col-md-6">
+                                <input class="form-control form-control-sm" id="balance" name="balance" type="number" placeholder="£" min="0" step=".01" size="4" required="true" />
+                                <button class="btn m-2 btn-sm btn-primary" type="submit">Update</button>
+                            </div>
+                        </div>
                     </form>
-                {{/each}}
-                <br/>
-                <hr/>
-            {{/if}}
+                </div>
+                
+                {{!-- transfer --}}
+                <div class="p-4 m-2 card bg-light">
+                    <h4 class="text-primary card-title">Transfer Money 💰</h4>
+                    <form class="m-0" action="/users/{{id}}/transfer" method="post">
+                        <div class="form-row justify-content-center">
+                            <div class="form-group col-md-12">
+                                Send
+                                <input class="form-control form-control-sm" id="amount" placeholder="£" name="amount" type="number" min="0" step=".01" max="{{balance}}" required="true" />
+                                to 
+                                <select class="form-control" name="recipient" size="1" placeholder="Follow a friend to transfer money"  required="true">
+                                    {{#if anyFriends}}
+                                        {{#each friends}}
+                                        <option value={{this.email}}>{{this.email}}</option>
+                                        {{/each}}
+                                    {{else}}
+                                        <option value="" disabled selected hidden>Follow a friend to transfer money</option>
+                                    {{/if}}
+                                </select>
+                                <button class="m-2 btn-sm btn btn-primary" type="submit">Transfer</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div> {{!-- End of first column --}}
 
 
-        <br/>
 
-        <h4>Invite Friends</h4>
-        <form action="/friends/invite" method="post">
-            <input id="email" name="email" type="text" placeholder="email address"/>
-            <button class="btn btn-primary" type="submit">Invite</button>
-        </form>    
+            {{!-- Second column --}}
+            <div class="col-4 col-sm-4 m-0">
+                {{!-- friends --}}
+                {{#if anyFriends}}
+                    <div class="p-4 m-2 card bg-light">
+                        <h4 class="text-primary card-title">My Friends 👥</h4>
+                        <ul class="list-group overflow-auto list-group-flush" style="max-height: 150px" >
+                        {{#each friends}}
+                            <li class="list-group-item bg-light">{{this.email}}</li>
+                        {{/each}}
+                        </ul>
+                    </div> 
+                {{/if}}
+                
+                {{!-- follow --}}
+                
+                {{#if anyUsers}}
+                    <div class="p-4 m-2 card bg-light">
+                        <h4 class="text-primary card-title">Follow Friends ➕</h4>
+                        <ul class="list-group overflow-auto" style="max-height: 150px" >
+                            {{#each users}}
+                            <li>
+                                <form class="" action="/users/{{../id}}/friends" method="post" style="margin:1">
+                                    <input type="hidden" value={{this.email}} name="friend_email">
+                                    <input type="hidden" value={{this.id}} name="friend_id">
+                                    <button class="btn m-1 btn-sm btn-outline-primary" style="min-width:250" type="submit">{{this.email}}</button>
+                                </form>
+                            </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                {{/if}}
+              
 
-        <button class="btn btn-light"><a href="/">Home</a></button>
+                {{!-- invite --}}
+                <div class="p-4 m-2 card bg-light"> 
+                    <h4 class="text-primary card-title">Invite Friends 📬</h4>
+                    <form class="m-0" action="/friends/invite" method="post">
+                        <div class="form-row justify-content-center m-0">
+                            <div class="form-group col-md-12 m-0">
+                                <input class="form-control" id="email" name="email" type="text" placeholder="Enter email address" required="true" />
+                                <button class="btn m-2 btn-primary btn-sm" type="submit">Invite</button>
+                            </div>
+                        </div>
+                    </form> 
+                </div>
+            </div> {{!-- End of second column --}}
+
+
+
+            {{!-- Third column --}}
+            <div class="col-4 col-sm-4">
+
+                {{!-- transactions --}}
+                <div class="p-4 m-2 card bg-light">
+                    <h4 class="text-primary card-title"> Your Transactions 💸</h4>
+                    {{#if transactions}}
+                        <ul class="list-group overflow-auto" style="height: 460px" >
+                            {{#each transactions}}
+                                {{#if this.sent}}
+                                    <li class="list-group-item list-group-item-danger" style="font-size:11px"> you sent £{{this.amount}} to {{this.recipient}}</li>
+                                {{else}}
+                                    <li class="list-group-item list-group-item-success" style="font-size:11px"> you recieved £{{this.amount}} from {{this.sender}}</li>
+                                {{/if}}
+
+                            {{/each}}
+                        </ul>
+                    {{else}}
+                        <h6>No transactions</h6>
+                    {{/if}}
+                </div>
+            </div> {{!-- End of third column --}}
+        
+        
+        </div>
     {{/if}}
 </div>

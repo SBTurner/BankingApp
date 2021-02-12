@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const User = require("./models/User");
+const Transaction = require("./models/Transaction");
 const { auth, requiresAuth } = require("express-openid-connect");
 const Handlebars = require("handlebars");
 const expressHandlebars = require("express-handlebars");
@@ -79,10 +80,40 @@ app.get("/users", async (req, res) => {
   res.send(users);
 });
 
+//------------------ transactions -------------------
+
+app.get("/transactions", async (req, res) => {
+  const transactions = await Transaction.find({});
+  res.send(transactions);
+});
+
+app.get("/transactions/:id", async (req, res) => {
+  const user = await User.findById(req.params.id)
+  const transactions = await Transaction.find({});
+  const filtered = transactions.filter(transaction => transaction.sender == user.email || transaction.recipient == user.email)
+  res.send(filtered);
+});
+
+app.get("/transactions/sent/:id", async (req, res) => {
+  const user = await User.findById(req.params.id)
+  const transactions = await Transaction.find({})
+  const filtered = transactions.filter(transaction => transaction.sender == user.email)
+  res.send(filtered);
+});
+
+app.get("/transactions/recieved/:id", async (req, res) => {
+  const user = await User.findById(req.params.id)
+  const transactions = await Transaction.find({})
+  const filtered = transactions.filter(transaction => transaction.recipient == user.email)
+  res.send(filtered);
+});
+
 //------------------ Account -------------------
 app.get("/account", requiresAuth(), async (req, res) => {
   const users = await User.find({});
   let user = await User.findOne({ email: req.oidc.user.email });
+
+
 
   if (!user) {
     let user = await User.create({
@@ -102,12 +133,13 @@ app.get("/account", requiresAuth(), async (req, res) => {
       loggedIn: req.oidc.isAuthenticated(),
       name: user.name,
       email: user.email,
-      balance: user.balance,
+      balance: Number.parseFloat(user.balance).toFixed(2),
       id: user._id,
       users: addFriendsUsers,
       anyUsers: addFriendsUsers.length > 0,
       friends: user.friends,
-      anyFriends: user.friends.length > 0
+      anyFriends: user.friends.length > 0,
+      transactions: false
     });
   } else {
     const addFriendsUsers = users.filter((u) => {
@@ -117,16 +149,26 @@ app.get("/account", requiresAuth(), async (req, res) => {
       )
         return true
     });
+
+    const transactions = await Transaction.find({})
+    const filtered = transactions.filter(transaction => transaction.recipient == user.email || transaction.sender == user.email)
+
+
+    filtered.forEach(transaction => {
+      transaction.sent = transaction.sender == user.email
+    })
+
     res.render("account", {
       loggedIn: req.oidc.isAuthenticated(),
       name: user.name,
       email: user.email,
-      balance: user.balance,
+      balance: Number.parseFloat(user.balance).toFixed(2),
       id: user._id,
       users: addFriendsUsers,
       anyUsers: addFriendsUsers.length > 0,
       friends: user.friends,
-      anyFriends: user.friends.length > 0
+      anyFriends: user.friends.length > 0,
+      transactions: filtered.reverse()
     });
   }
 });
@@ -156,9 +198,13 @@ app.post("/users/:id/friends", requiresAuth(), async (req, res) => {
 app.post("/users/:id/transfer", requiresAuth(), async (req, res) => {
   const user = await User.findById(req.params.id)
   const recipient = await User.findOne({email: req.body.recipient})
-  
-  user.balance -= req.body.amount
-  recipient.balance += Number(req.body.amount)
+
+  const amount = Number.parseFloat(req.body.amount).toFixed(2)
+
+  await Transaction.create({sender: user.email, recipient:req.body.recipient, timeSent: new Date(), amount: amount})
+
+  user.balance -= Number(amount)
+  recipient.balance += Number(amount)
 
   await User.findByIdAndUpdate(req.params.id, {balance: user.balance})
   await User.findOneAndUpdate({email: req.body.recipient}, {balance: recipient.balance})
